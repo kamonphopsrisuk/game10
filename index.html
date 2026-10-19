@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นักสร้างแผนภูมิ ป.4 - สื่อการสอนวิทยาการคำนวณ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Mali (Friendly Thai Font for Kids) & Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Mali', 'Prompt', cursive, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            color: #1e293b;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .title-font {
+            font-family: 'Mali', cursive;
+            font-weight: 700;
+        }
+
+        .chart-bar-transition {
+            transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
+        }
+
+        .kid-card {
+            border: 4px solid #38bdf8;
+            box-shadow: 0 8px 0 #0284c7, 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .kid-btn-emerald {
+            background-color: #10b981;
+            box-shadow: 0 6px 0 #047857;
+            transition: all 0.1s ease;
+        }
+        .kid-btn-emerald:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #047857;
+        }
+        .kid-btn-emerald:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #047857;
+        }
+
+        .kid-btn-amber {
+            background-color: #f59e0b;
+            box-shadow: 0 6px 0 #b45309;
+            transition: all 0.1s ease;
+        }
+        .kid-btn-amber:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #b45309;
+        }
+        .kid-btn-amber:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #b45309;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-6 text-slate-800">
+
+    <!-- Header & Navigation -->
+    <header class="w-full max-w-5xl bg-white border-4 border-sky-400 rounded-2xl p-4 mb-4 shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="bg-amber-400 p-3 rounded-2xl text-slate-900 border-2 border-amber-500 shadow flex items-center justify-center">
+                <i class="fa-solid fa-chart-column text-3xl text-sky-900"></i>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl title-font font-bold text-sky-700 flex items-center gap-2">
+                    นักสร้างแผนภูมิ ป.4 📊
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-600 font-semibold">วิชาวิทยาการคำนวณ: การนำเสนอข้อมูลเปรียบเทียบ</p>
+            </div>
+        </div>
+
+        <!-- Problem Selector Tabs -->
+        <div class="flex flex-wrap gap-2 justify-center">
+            <button onclick="loadProblem(0)" id="prob-btn-0" class="px-3 py-1.5 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all bg-sky-500 text-white border-sky-600 shadow">
+                ชุดที่ 1: ผลไม้ชอบ 🍎
+            </button>
+            <button onclick="loadProblem(1)" id="prob-btn-1" class="px-3 py-1.5 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all bg-white text-slate-700 border-slate-300 hover:bg-slate-100">
+                ชุดที่ 2: สัตว์เลี้ยง 🐶
+            </button>
+            <button onclick="loadProblem(2)" id="prob-btn-2" class="px-3 py-1.5 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all bg-white text-slate-700 border-slate-300 hover:bg-slate-100">
+                ชุดที่ 3: กีฬาโปรด ⚽
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="w-full max-w-5xl bg-white border-4 border-sky-400 rounded-3xl p-4 sm:p-6 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
+
+        <!-- Left Column: Data Source Table & Controls -->
+        <section class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <!-- Instructions Card -->
+            <div class="bg-sky-50 border-2 border-sky-300 rounded-2xl p-4">
+                <h2 class="text-base font-bold text-sky-800 mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-sky-600"></i> คำชี้แจงการทำกิจกรรม
+                </h2>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    อ่านข้อมูลจากตาราง แล้วนำมาสร้าง <span class="font-bold text-sky-700">"แผนภูมิแท่ง"</span> โดยพิมพ์ชื่อแผนภูมิ ชื่อแกน X, แกน Y และปรับความสูงของแท่งกราฟให้ตรงกับข้อมูล
+                </p>
+            </div>
+
+            <!-- Problem Context & Data Table -->
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <span id="problem-badge" class="bg-amber-400 text-amber-950 text-xs font-bold px-2.5 py-0.5 rounded-lg border border-amber-500">
+                        ตารางข้อมูลตัวอย่าง
+                    </span>
+                    <span id="score-display" class="text-xs font-bold text-slate-600">
+                        คะแนนเต็ม: <span class="text-emerald-600 font-extrabold text-sm">10</span> คะแนน
+                    </span>
+                </div>
+                <h3 id="problem-title-text" class="font-bold text-slate-800 text-sm sm:text-base mb-3">
+                    หัวข้อ: ผลไม้ที่นักเรียนชั้น ป.4 ชื่นชอบ
+                </h3>
+
+                <!-- Data Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs sm:text-sm text-left border-collapse bg-white rounded-xl overflow-hidden border border-amber-200">
+                        <thead class="bg-amber-200 text-amber-900 font-bold border-b border-amber-300">
+                            <tr>
+                                <th id="table-col1-name" class="p-2 sm:p-2.5">รายการ (ชนิดผลไม้)</th>
+                                <th id="table-col2-name" class="p-2 sm:p-2.5 text-right">จำนวน (คน)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-amber-100 font-semibold text-slate-700">
+                            <!-- Dynamic rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Configuration Inputs -->
+            <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-3">
+                <h3 class="font-bold text-slate-800 text-xs sm:text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-sky-600"></i> ตั้งค่าข้อมูลแผนภูมิ
+                </h3>
+
+                <!-- Chart Title Input -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">1. ชื่อแผนภูมิ:</label>
+                    <input type="text" id="input-chart-title" placeholder="พิมพ์ชื่อแผนภูมิที่นี่..." 
+                           oninput="updateChartDisplay()"
+                           class="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:outline-none font-semibold">
+                </div>
+
+                <!-- X and Y Axes Label Inputs -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">2. ชื่อแกน X (แนวนอน):</label>
+                        <input type="text" id="input-axis-x" placeholder="เช่น ชนิดผลไม้" 
+                               oninput="updateChartDisplay()"
+                               class="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:outline-none font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">3. ชื่อแกน Y (แนวตั้ง):</label>
+                        <input type="text" id="input-axis-y" placeholder="เช่น จำนวน (คน)" 
+                               oninput="updateChartDisplay()"
+                               class="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:outline-none font-semibold">
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Interactive Bar Chart Display & Value Controls -->
+        <section class="lg:col-span-7 flex flex-col justify-between bg-sky-50/50 border-2 border-sky-200 rounded-2xl p-4 sm:p-5">
+            
+            <div>
+                <!-- Display Header / Live Chart Title -->
+                <div class="text-center mb-4 min-h-[50px] flex flex-col justify-center items-center">
+                    <span class="text-[11px] font-bold text-sky-600 uppercase tracking-wider">ตัวอย่างแผนภูมิของคุณ</span>
+                    <h2 id="live-chart-title" class="text-base sm:text-lg font-extrabold text-slate-800 text-center text-sky-900 line-clamp-2">
+                        (กรุณากรอกชื่อแผนภูมิ)
+                    </h2>
+                </div>
+
+                <!-- Bar Chart Canvas Area -->
+                <div class="relative w-full h-[260px] sm:h-[290px] border-l-4 border-b-4 border-slate-700 mb-3 pt-6 pr-2 pl-8 flex items-end justify-around bg-white rounded-tr-xl rounded-br-none rounded-bl-none shadow-inner">
+                    
+                    <!-- Y Axis Label Display -->
+                    <div class="absolute -left-7 top-1/2 -rotate-90 transform -translate-y-1/2 text-[11px] sm:text-xs font-bold text-slate-600 whitespace-nowrap">
+                        <span id="live-axis-y">แกน Y</span>
+                    </div>
+
+                    <!-- Y Axis Scale Markers (0, 4, 8, 12, 16) -->
+                    <div class="absolute left-1 bottom-0 top-6 flex flex-col justify-between text-[10px] text-slate-400 font-bold pointer-events-none select-none">
+                        <span>16</span>
+                        <span>12</span>
+                        <span>8</span>
+                        <span>4</span>
+                        <span>0</span>
+                    </div>
+
+                    <!-- Horizontal Grid Lines -->
+                    <div class="absolute inset-x-0 top-6 border-b border-dashed border-slate-200 pointer-events-none"></div>
+                    <div class="absolute inset-x-0 top-[29%] border-b border-dashed border-slate-200 pointer-events-none"></div>
+                    <div class="absolute inset-x-0 top-[52%] border-b border-dashed border-slate-200 pointer-events-none"></div>
+                    <div class="absolute inset-x-0 top-[76%] border-b border-dashed border-slate-200 pointer-events-none"></div>
+
+                    <!-- Dynamic Bar Elements Grid -->
+                    <div id="chart-bars-container" class="w-full h-full flex items-end justify-around relative z-10">
+                        <!-- Dynamic bars injected by JS -->
+                    </div>
+
+                </div>
+
+                <!-- X Axis Label Display -->
+                <div class="text-center text-xs font-bold text-slate-600 mb-4">
+                    <span id="live-axis-x">แกน X</span>
+                </div>
+
+                <!-- Values Controls Grid -->
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-3 shadow-sm">
+                    <label class="block text-xs font-bold text-slate-700 mb-2 text-center">
+                        <i class="fa-solid fa-sliders text-amber-500 mr-1"></i> ปรับจำนวนข้อมูลแต่ละรายการ (แกน Y)
+                    </label>
+                    <div id="category-controls-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <!-- Dynamic value adjustment buttons injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center justify-between gap-3 pt-4 border-t border-sky-100 mt-4">
+                <button onclick="resetCurrentForm()" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> รีเซ็ต
+                </button>
+
+                <button onclick="evaluateChart()" class="kid-btn-emerald text-white font-bold px-6 py-3 rounded-2xl text-sm sm:text-base flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> ส่งคำตอบและตรวจคะแนน
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Evaluation Feedback Modal -->
+    <div id="modal-feedback" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-4 border-sky-400 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl relative animate-bounce-short">
+            
+            <div id="modal-icon" class="text-6xl mb-2">🎉</div>
+            <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold text-sky-800 mb-1">
+                เก่งมาก! สร้างแผนภูมิถูกต้อง
+            </h2>
+            <p id="modal-subtitle" class="text-xs sm:text-sm text-slate-600 mb-4">
+                ตรวจสอบการนำเสนอข้อมูลของหนูเรียบร้อยแล้ว
+            </p>
+
+            <!-- Score Box -->
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-4">
+                <div class="text-xs font-bold text-amber-800 mb-1">คะแนนที่คุณได้</div>
+                <div class="text-4xl font-extrabold text-amber-500" id="modal-score-num">10 / 10</div>
+            </div>
+
+            <!-- Feedback Details Checklist -->
+            <div id="modal-checklist" class="text-left text-xs space-y-2 mb-5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <!-- Injected checklist -->
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="w-1/2 py-2.5 bg-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-300 text-xs sm:text-sm">
+                    กลับไปแก้ไข
+                </button>
+                <button onclick="nextProblem()" id="modal-next-btn" class="w-1/2 kid-btn-amber text-slate-900 font-bold py-2.5 rounded-xl text-xs sm:text-sm">
+                    ทำชุดถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        // Problem Sets Data
+        const problemSets = [
+            {
+                id: 0,
+                badge: "ชุดที่ 1: ผลไม้",
+                title: "หัวข้อ: ผลไม้ที่นักเรียนชั้น ป.4 ชื่นชอบ",
+                chartTitleExpected: ["ผลไม้ที่นักเรียนชั้น ป.4 ชื่นชอบ", "ผลไม้ที่นักเรียน ป.4 ชื่นชอบ", "ผลไม้ที่ชื่นชอบ"],
+                col1Name: "ชนิดผลไม้",
+                col2Name: "จำนวน (คน)",
+                axisXExpected: ["ชนิดผลไม้", "ผลไม้", "รายการ"],
+                axisYExpected: ["จำนวน (คน)", "จำนวนคน", "จำนวน"],
+                items: [
+                    { name: "แบรนด์/ชนิด", label: "แอปเปิล", count: 8, color: "#ef4444" },
+                    { name: "แบรนด์/ชนิด", label: "กล้วย", count: 12, color: "#eab308" },
+                    { name: "แบรนด์/ชนิด", label: "ส้ม", count: 6, color: "#f97316" },
+                    { name: "แบรนด์/ชนิด", label: "แตงโม", count: 10, color: "#22c55e" },
+                    { name: "แบรนด์/ชนิด", label: "มะม่วง", count: 14, color: "#facc15" }
+                ]
+            },
+            {
+                id: 1,
+                badge: "ชุดที่ 2: สัตว์เลี้ยง",
+                title: "หัวข้อ: สัตว์เลี้ยงแสนรักของนักเรียน ป.4",
+                chartTitleExpected: ["สัตว์เลี้ยงแสนรักของนักเรียน ป.4", "สัตว์เลี้ยงของนักเรียน ป.4", "สัตว์เลี้ยงแสนรัก"],
+                col1Name: "ชนิดสัตว์เลี้ยง",
+                col2Name: "จำนวน (ตัว)",
+                axisXExpected: ["ชนิดสัตว์เลี้ยง", "สัตว์เลี้ยง", "สัตว์"],
+                axisYExpected: ["จำนวน (ตัว)", "จำนวนตัว", "จำนวน"],
+                items: [
+                    { name: "ชนิด", label: "สุนัข", count: 15, color: "#8b5cf6" },
+                    { name: "ชนิด", label: "แมว", count: 11, color: "#ec4899" },
+                    { name: "ชนิด", label: "กระต่าย", count: 7, color: "#06b6d4" },
+                    { name: "ชนิด", label: "ปลา", count: 9, color: "#3b82f6" }
+                ]
+            },
+            {
+                id: 2,
+                badge: "ชุดที่ 3: กีฬาโปรด",
+                title: "หัวข้อ: กีฬาโปรดของนักเรียนชั้น ป.4 ในชั่วโมง PE",
+                chartTitleExpected: ["กีฬาโปรดของนักเรียนชั้น ป.4", "กีฬาโปรดของนักเรียน ป.4", "กีฬาโปรด"],
+                col1Name: "ประเภทกีฬา",
+                col2Name: "จำนวน (คน)",
+                axisXExpected: ["ประเภทกีฬา", "กีฬา"],
+                axisYExpected: ["จำนวน (คน)", "จำนวนคน", "จำนวน"],
+                items: [
+                    { name: "ชนิด", label: "ฟุตบอล", count: 16, color: "#10b981" },
+                    { name: "ชนิด", label: "แบดมินตัน", count: 10, color: "#f43f5e" },
+                    { name: "ชนิด", label: "บาสเกตบอล", count: 12, color: "#f97316" },
+                    { name: "ชนิด", label: "ว่ายน้ำ", count: 5, color: "#0284c7" }
+                ]
+            }
+        ];
+
+        let currentProblemIdx = 0;
+        let userCounts = [];
+
+        // Initialize state on load
+        window.onload = function() {
+            loadProblem(0);
+        };
+
+        function loadProblem(idx) {
+            currentProblemIdx = idx;
+            const prob = problemSets[idx];
+
+            // Update Tab UI
+            [0, 1, 2].forEach(i => {
+                const btn = document.getElementById(`prob-btn-${i}`);
+                if (i === idx) {
+                    btn.className = "px-3 py-1.5 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all bg-sky-500 text-white border-sky-600 shadow";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all bg-white text-slate-700 border-slate-300 hover:bg-slate-100";
+                }
+            });
+
+            // Update Problem Header & Table
+            document.getElementById('problem-badge').innerText = prob.badge;
+            document.getElementById('problem-title-text').innerText = prob.title;
+            document.getElementById('table-col1-name').innerText = prob.col1Name;
+            document.getElementById('table-col2-name').innerText = prob.col2Name;
+
+            // Render Table Body
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+            prob.items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50";
+                tr.innerHTML = `
+                    <td class="p-2 sm:p-2.5 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${item.color}"></span>
+                        <span>${item.label}</span>
+                    </td>
+                    <td class="p-2 sm:p-2.5 text-right font-bold text-amber-900">${item.count} คน</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Reset Input Values
+            document.getElementById('input-chart-title').value = '';
+            document.getElementById('input-axis-x').value = '';
+            document.getElementById('input-axis-y').value = '';
+
+            // Reset User Bar Counts to 0
+            userCounts = prob.items.map(() => 0);
+
+            renderCategoryControls();
+            updateChartDisplay();
+        }
+
+        // Render controls for adjusting bar counts
+        function renderCategoryControls() {
+            const prob = problemSets[currentProblemIdx];
+            const container = document.getElementById('category-controls-container');
+            container.innerHTML = '';
+
+            prob.items.forEach((item, index) => {
+                const box = document.createElement('div');
+                box.className = "bg-slate-50 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-between";
+                box.innerHTML = `
+                    <span class="text-[11px] font-bold text-slate-700 truncate w-full text-center" style="color: ${item.color}">
+                        ${item.label}
+                    </span>
+                    <div class="flex items-center gap-1 my-1">
+                        <button onclick="adjustCount(${index}, -1)" class="w-6 h-6 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-extrabold flex items-center justify-center text-xs">
+                            -
+                        </button>
+                        <span id="count-val-${index}" class="text-xs font-bold w-6 text-center text-slate-800">
+                            ${userCounts[index]}
+                        </span>
+                        <button onclick="adjustCount(${index}, 1)" class="w-6 h-6 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-extrabold flex items-center justify-center text-xs">
+                            +
+                        </button>
+                    </div>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function adjustCount(index, delta) {
+            userCounts[index] = Math.max(0, Math.min(16, userCounts[index] + delta));
+            document.getElementById(`count-val-${index}`).innerText = userCounts[index];
+            updateChartDisplay();
+        }
+
+        // Update Live Bar Chart Display
+        function updateChartDisplay() {
+            const prob = problemSets[currentProblemIdx];
+
+            // Title and Axes text
+            const inputTitle = document.getElementById('input-chart-title').value.trim();
+            const inputX = document.getElementById('input-axis-x').value.trim();
+            const inputY = document.getElementById('input-axis-y').value.trim();
+
+            document.getElementById('live-chart-title').innerText = inputTitle || "(พิมพ์ชื่อแผนภูมิที่ช่องด้านซ้าย)";
+            document.getElementById('live-axis-x').innerText = inputX || "แกน X";
+            document.getElementById('live-axis-y').innerText = inputY || "แกน Y";
+
+            // Render Chart Bars
+            const barsContainer = document.getElementById('chart-bars-container');
+            barsContainer.innerHTML = '';
+
+            const MAX_SCALE = 16; // Top scale value
+
+            prob.items.forEach((item, idx) => {
+                const val = userCounts[idx];
+                const heightPercent = (val / MAX_SCALE) * 100;
+
+                const barCol = document.createElement('div');
+                barCol.className = "flex flex-col items-center h-full justify-end flex-1 max-w-[48px] mx-1 group";
+                barCol.innerHTML = `
+                    <!-- Value Label on Top of Bar -->
+                    <span class="text-[10px] font-extrabold text-slate-700 mb-0.5 transition-all">
+                        ${val}
+                    </span>
+
+                    <!-- Bar Stick -->
+                    <div class="w-full rounded-t-lg chart-bar-transition shadow-sm relative overflow-hidden" 
+                         style="height: ${heightPercent}%; background-color: ${item.color}">
+                         <div class="absolute inset-x-0 top-0 h-1 bg-white/40"></div>
+                    </div>
+
+                    <!-- Category Label below X Axis -->
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-600 mt-2 truncate w-full text-center">
+                        ${item.label}
+                    </span>
+                `;
+                barsContainer.appendChild(barCol);
+            });
+        }
+
+        function resetCurrentForm() {
+            loadProblem(currentProblemIdx);
+        }
+
+        // Evaluate Chart Accuracy and Give Score
+        function evaluateChart() {
+            const prob = problemSets[currentProblemIdx];
+            const inputTitle = document.getElementById('input-chart-title').value.trim();
+            const inputX = document.getElementById('input-axis-x').value.trim();
+            const inputY = document.getElementById('input-axis-y').value.trim();
+
+            let score = 0;
+            let feedback = [];
+
+            // 1. Title Check (3 points)
+            const titleCorrect = prob.chartTitleExpected.some(t => inputTitle.toLowerCase().includes(t.toLowerCase())) || inputTitle.length >= 6;
+            if (titleCorrect && inputTitle !== '') {
+                score += 3;
+                feedback.push({ success: true, text: "ชื่อแผนภูมิเหมาะสมและสื่อความหมายชัดเจน (+3 คะแนน)" });
+            } else {
+                feedback.push({ success: false, text: "ชื่อแผนภูมิยังไม่สมบูรณ์ หรือสั้นเกินไป" });
+            }
+
+            // 2. Axes Check (2 points)
+            const xCorrect = inputX !== '';
+            const yCorrect = inputY !== '';
+            if (xCorrect && yCorrect) {
+                score += 2;
+                feedback.push({ success: true, text: "ระบุชื่อแกน X และ แกน Y ครบถ้วน (+2 คะแนน)" });
+            } else {
+                feedback.push({ success: false, text: "ควรกำหนดชื่อแกน X และแกน Y ให้ครบถ้วน" });
+            }
+
+            // 3. Values Check (5 points)
+            let valuesMatched = 0;
+            prob.items.forEach((item, idx) => {
+                if (userCounts[idx] === item.count) {
+                    valuesMatched++;
+                }
+            });
+
+            if (valuesMatched === prob.items.length) {
+                score += 5;
+                feedback.push({ success: true, text: `ความสูงแท่งกราฟถูกต้องครบทั้ง ${prob.items.length} รายการ (+5 คะแนน)` });
+            } else {
+                const pts = Math.floor((valuesMatched / prob.items.length) * 5);
+                score += pts;
+                feedback.push({ success: false, text: `ความสูงแท่งกราฟถูกต้อง ${valuesMatched}/${prob.items.length} รายการ (+${pts} คะแนน)` });
+            }
+
+            // Display Feedback Modal
+            showModal(score, feedback);
+        }
+
+        function showModal(score, feedback) {
+            const modal = document.getElementById('modal-feedback');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalTitle = document.getElementById('modal-title');
+            const modalScoreNum = document.getElementById('modal-score-num');
+            const checklist = document.getElementById('modal-checklist');
+
+            modalScoreNum.innerText = `${score} / 10`;
+
+            if (score === 10) {
+                modalIcon.innerText = "🏆";
+                modalTitle.innerText = "ยอดเยี่ยมมาก! แผนภูมิสมบูรณ์แบบ";
+            } else if (score >= 7) {
+                modalIcon.innerText = "🌟";
+                modalTitle.innerText = "เก่งมาก! อีกนิดเดียวจะเต็มแล้ว";
+            } else {
+                modalIcon.innerText = "💪";
+                modalTitle.innerText = "พยายามได้ดี! ลองปรับอีกนิดนะ";
+            }
+
+            checklist.innerHTML = '';
+            feedback.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "flex items-start gap-2";
+                if (item.success) {
+                    div.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i> <span class="text-slate-700">${item.text}</span>`;
+                } else {
+                    div.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 mt-0.5"></i> <span class="text-slate-600">${item.text}</span>`;
+                }
+                checklist.appendChild(div);
+            });
+
+            const nextBtn = document.getElementById('modal-next-btn');
+            if (currentProblemIdx < problemSets.length - 1) {
+                nextBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-feedback').classList.add('hidden');
+        }
+
+        function nextProblem() {
+            closeModal();
+            if (currentProblemIdx < problemSets.length - 1) {
+                loadProblem(currentProblemIdx + 1);
+            }
+        }
+    </script>
+</body>
+</html>
